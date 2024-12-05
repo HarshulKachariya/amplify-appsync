@@ -49,7 +49,7 @@ const Layout = () => {
                   to={slug}
                   className={({ isActive }) =>
                     `hover:text-blue-400 ${
-                      isActive ? "text-blue-500 font-bold" : ""
+                      isActive ? "text-blue-500 font-bold" : "    "
                     }`
                   }
                 >
