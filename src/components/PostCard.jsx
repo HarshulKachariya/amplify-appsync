@@ -23,12 +23,13 @@ const PostCard = ({ posts, mypost, setPosts }) => {
           key={index}
           className="bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
         >
-          <div className="w-full h-48 overflow-hidden">
+          <div className="w-full h-48 object-contain">
             <StorageImage
               alt={post.title}
               path={post.coverImage ?? ""}
               onGetUrlError={(error) => console.error(error)}
               imgKey="guest"
+              className="object-contain !w-full"
             />
             {/* <img
               src={post.coverImage}

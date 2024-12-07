@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getPost } from "../graphql/queries";
 import { StorageImage } from "@aws-amplify/ui-react-storage";
 import { uploadData } from "aws-amplify/storage";
+import { v4 } from "uuid";
 
 const client = generateClient();
 
@@ -63,7 +64,7 @@ const EditPostPage = () => {
         try {
           const result = await uploadData({
             path: ({ identityId }) =>
-              `protected/${identityId}/album/2024/1.jpg`,
+              `protected/${identityId}/${image.name}_${v4()}`,
             data: image,
             options: {
               onProgress: ({ transferredBytes, totalBytes }) => {
@@ -151,6 +152,7 @@ const EditPostPage = () => {
             alt={value.title}
             path={imageURL ?? ""}
             onGetUrlError={(error) => console.error(error)}
+            className="!w-full !h-full"
           />
         ) : image ? (
           <div className="w-full h-full rounded-lg overflow-hidden">

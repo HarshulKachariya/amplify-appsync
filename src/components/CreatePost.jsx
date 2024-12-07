@@ -15,6 +15,7 @@ const CreatePostPage = () => {
     content: "",
   });
   const [image, setImage] = useState(null);
+  const [error, setError] = useState("");
   const imageInputRef = useRef();
 
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ const CreatePostPage = () => {
         try {
           const result = await uploadData({
             path: ({ identityId }) =>
-              `protected/${identityId}/album/2024/1.jpg`,
+              `protected/${identityId}/${image.name}_${v4()}`,
             data: image,
             options: {
               onProgress: ({ transferredBytes, totalBytes }) => {
@@ -119,7 +120,7 @@ const CreatePostPage = () => {
           className="mt-1 mb-4 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
         />
         {image && (
-          <div className="w-64 h-64 rounded-lg overflow-hidden">
+          <div className="w-full h-64 rounded-lg overflow-hidden">
             <img
               src={URL.createObjectURL(image)}
               className="w-full h-full object-cover"
@@ -145,7 +146,7 @@ const CreatePostPage = () => {
           onChange={handleFileInputChange}
           className="hidden"
         />
-        <div>
+        <div className="space-y-3">
           <button
             onClick={handleFIleInput}
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
