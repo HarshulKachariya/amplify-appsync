@@ -2,6 +2,7 @@
 import { NavLink } from "react-router-dom";
 import { deletePost } from "../graphql/mutations";
 import { generateClient } from "aws-amplify/api";
+import { StorageImage } from "@aws-amplify/ui-react-storage";
 
 const client = generateClient();
 
@@ -23,11 +24,17 @@ const PostCard = ({ posts, mypost, setPosts }) => {
           className="bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
         >
           <div className="w-full h-48 overflow-hidden">
-            <img
+            <StorageImage
+              alt={post.title}
+              path={post.coverImage ?? ""}
+              onGetUrlError={(error) => console.error(error)}
+              imgKey="guest"
+            />
+            {/* <img
               src={post.coverImage}
               alt="Post Cover"
               className="w-full h-full object-cover"
-            />
+            /> */}
           </div>
           <div className="p-4 flex flex-col gap-3">
             <h2 className="text-xl font-semibold text-gray-800 truncate">

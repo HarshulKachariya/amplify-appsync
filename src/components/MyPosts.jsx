@@ -16,7 +16,7 @@ const MyPostsPage = () => {
     try {
       const currentUser = await getCurrentUser();
       if (currentUser) {
-        fetchPosts(currentUser.username);
+        fetchPosts(currentUser.username, currentUser.userId);
       } else {
         navigate("/sign-in");
       }
@@ -25,12 +25,12 @@ const MyPostsPage = () => {
     }
   }
 
-  const fetchPosts = async (username) => {
+  const fetchPosts = async (username, id) => {
     try {
       const res = await client.graphql({
         query: postsByUsername,
         variables: {
-          username: username,
+          username: `${id}::${username}`,
           limit: 10,
           nextToken: null,
         },

@@ -2,34 +2,70 @@ import { redirect, useNavigate, useParams } from "react-router-dom";
 import { getPost } from "../graphql/queries";
 import { generateClient } from "aws-amplify/api";
 import { useEffect, useState } from "react";
+import { StorageImage } from "@aws-amplify/ui-react-storage";
+import { createComment } from "../graphql/mutations";
+import { v4 } from "uuid";
 
 const client = generateClient();
 
 const PostsPage = () => {
   const [data, setData] = useState(null);
+  const [comment, setComment] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchPostsData = async () => {
-      try {
-        if (!id) return redirect("/");
+  const fetchPostsData = async () => {
+    try {
+      if (!id) return redirect("/");
 
-        const res = await client.graphql({
-          query: getPost,
-          variables: { id },
-        });
+      const res = await client.graphql({
+        query: getPost,
+        variables: { id },
+      });
 
-        if (res.data.getPost) {
-          setData(res.data.getPost);
-          console.log(res.data.getPost);
-        }
-      } catch (error) {
-        console.log(error);
+      if (res.data.getPost) {
+        setData(res.data.getPost);
+        console.log(res.data.getPost);
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
     fetchPostsData();
   }, []);
+
+  const handleChange = (e) => {
+    setComment(e.target.value);
+  };
+
+  const createComments = async () => {
+    try {
+      if (!comment) return;
+
+      const commentValue = {
+        id: v4(),
+        message: comment,
+        postID: data.id,
+      };
+
+      const res = await client.graphql({
+        query: createComment,
+        variables: {
+          input: commentValue,
+        },
+        authMode: "userPool",
+      });
+      if (res.data.createComment) {
+        setComment("");
+        fetchPostsData();
+      }
+      console.log("createComment", res.data.createComment);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   if (!data)
     return (
@@ -51,10 +87,10 @@ const PostsPage = () => {
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="p-6">
           {data.coverImage && (
-            <img
-              src={data.coverImage}
+            <StorageImage
               alt={data.title}
-              className="w-full h-64 object-cover"
+              path={data.coverImage}
+              className="w-full rounded-lg"
             />
           )}
           <h1 className="text-2xl font-bold text-gray-900 mt-4">
@@ -74,10 +110,47 @@ const PostsPage = () => {
             Last updated on {new Date(data.updatedAt).toLocaleDateString()}
           </span>
           <button
-            onClick={() => redirect("/")}
+            onClick={() => navigate("/")}
             className="px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition"
           >
             Go back to Home Page
+          </button>
+        </div>
+        <div className="bg-gray-100 p-4">
+          <h2 className="text-lg font-bold text-gray-800 mb-2">Comments</h2>
+          {data.comments?.items?.length > 0 ? (
+            <div className="space-y-4">
+              {data.comments.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-3 bg-gray-200 rounded-lg shadow-sm"
+                >
+                  <p className="text-gray-800">{item.message}</p>
+                  <span className="text-sm text-gray-600">
+                    - {item.createdBy}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No comments yet...</p>
+          )}
+        </div>
+        <div className="p-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            Add a Comment
+          </h3>
+          <textarea
+            placeholder="Write your comment..."
+            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            value={comment}
+            onChange={handleChange}
+          />
+          <button
+            onClick={createComments}
+            className="mt-3 px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition w-full"
+          >
+            Submit Comment
           </button>
         </div>
       </div>

@@ -46,15 +46,14 @@ const CreatePostPage = () => {
     setImage(file);
   };
 
+  const postValue = {
+    id: v4(),
+    title: value.title,
+    content: value.content,
+  };
+
   const createNewPost = async () => {
     if (!value.title || !value.content) return;
-
-    const postValue = {
-      id: v4(),
-      title: value.title,
-      content: value.content,
-      // username: user.username,
-    };
 
     try {
       if (image) {
