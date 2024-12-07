@@ -1,45 +1,38 @@
 import { generateClient } from "aws-amplify/api";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import PostCard from "./PostCard";
 import { getCurrentUser } from "@aws-amplify/auth";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { postsByUsername } from "../graphql/queries";
 
 const client = generateClient();
 
 const MyPostsPage = () => {
-  const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function currentAuthenticatedUser() {
-      try {
-        const currentUser = await getCurrentUser();
-        if (currentUser) {
-          setUser(currentUser);
-        } else {
-          navigate("/sign-in");
-        }
-      } catch (err) {
-        console.error("Error fetching user:", err);
+  async function currentAuthenticatedUser() {
+    try {
+      const currentUser = await getCurrentUser();
+      if (currentUser) {
+        fetchPosts(currentUser.username);
+      } else {
+        navigate("/sign-in");
       }
+    } catch (err) {
+      console.error("Error fetching user:", err);
     }
+  }
 
-    currentAuthenticatedUser();
-
-    if (user) {
-      fetchPosts();
-    }
-  }, []);
-
-  const fetchPosts = async () => {
+  const fetchPosts = async (username) => {
     try {
       const res = await client.graphql({
         query: postsByUsername,
         variables: {
-          username: user.username,
+          username: username,
+          limit: 10,
+          nextToken: null,
         },
       });
       setPosts(res.data.postsByUsername.items);
@@ -48,18 +41,22 @@ const MyPostsPage = () => {
     }
   };
 
+  useEffect(() => {
+    currentAuthenticatedUser();
+  }, []);
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-center">My Posts</h1>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {posts.length !== 0 ? (
-          posts.map((post, index) => <PostCard post={post} key={index} />)
-        ) : (
-          <div>No data Found</div>
-        )}
-      </div>
+      {posts.length !== 0 ? (
+        <PostCard posts={posts} mypost={true} setPosts={setPosts} />
+      ) : (
+        <div className="flex justify-center items-center text-2xl font-bold text-gray-500 ">
+          No Post available
+        </div>
+      )}
     </div>
   );
 };
 
-export default MyPostsPage;
+export default memo(MyPostsPage);

@@ -1,6 +1,5 @@
 import { getCurrentUser, signOut } from "aws-amplify/auth";
 import { useEffect, useState } from "react";
-import { withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import { useNavigate } from "react-router-dom";
 
@@ -53,4 +52,4 @@ const Profile = () => {
   );
 };
 
-export default withAuthenticator(Profile);
+export default Profile;

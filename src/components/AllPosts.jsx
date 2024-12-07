@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/api";
 import { listPosts } from "../graphql/queries";
-import { NavLink } from "react-router-dom";
 import PostCard from "./PostCard";
 
 const client = generateClient();
@@ -27,11 +26,13 @@ const AllPosts = () => {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Latest Posts</h1>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {posts.map((post, index) => (
-          <PostCard post={post} key={index} />
-        ))}
-      </div>
+      {posts.length && posts.length !== 0 ? (
+        <PostCard posts={posts} setPosts={setPosts} />
+      ) : (
+        <div className="flex justify-center items-center text-2xl font-bold text-gray-500 ">
+          No Post available
+        </div>
+      )}
     </div>
   );
 };
