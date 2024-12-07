@@ -28,7 +28,8 @@ const Layout = () => {
     try {
       await getCurrentUser();
       setIsSignedIn(true);
-    } catch (error) {
+    } catch (err) {
+      console.error("Unauthorized....", err.message);
       setIsSignedIn(false);
     }
   };
@@ -39,7 +40,6 @@ const Layout = () => {
 
   const slugs = [
     { slug: "/", name: "Latest Posts" },
-    { slug: "/create-post", name: "Create Post" },
     { slug: "/profile", name: "Profile" },
   ];
 
@@ -81,6 +81,18 @@ const Layout = () => {
 
             {isSignedIn && (
               <>
+                <li>
+                  <NavLink
+                    to="/create-post"
+                    className={({ isActive }) =>
+                      `hover:text-blue-400 ${
+                        isActive ? "text-blue-500 font-bold" : ""
+                      }`
+                    }
+                  >
+                    Create Post
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink
                     to="/my-posts"

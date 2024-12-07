@@ -1,10 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import { v4 } from "uuid";
 import { createPost } from "../graphql/mutations";
 import { generateClient } from "aws-amplify/api";
 import { useNavigate } from "react-router-dom";
+import { uploadData } from "aws-amplify/storage";
 
 const client = generateClient();
 
@@ -13,6 +14,8 @@ const CreatePostPage = () => {
     title: "",
     content: "",
   });
+  const [image, setImage] = useState(null);
+  const imageInputRef = useRef();
 
   const navigate = useNavigate();
 
@@ -32,6 +35,17 @@ const CreatePostPage = () => {
     []
   );
 
+  const handleFIleInput = () => {
+    imageInputRef.current.click();
+  };
+
+  const handleFileInputChange = () => {
+    const file = imageInputRef.current.files[0];
+
+    if (!file) return;
+    setImage(file);
+  };
+
   const createNewPost = async () => {
     if (!value.title || !value.content) return;
 
@@ -43,6 +57,31 @@ const CreatePostPage = () => {
     };
 
     try {
+      if (image) {
+        try {
+          const result = await uploadData({
+            path: ({ identityId }) =>
+              `protected/${identityId}/album/2024/1.jpg`,
+            data: image,
+            options: {
+              onProgress: ({ transferredBytes, totalBytes }) => {
+                if (totalBytes) {
+                  console.log(
+                    `Upload progress ${Math.round(
+                      (transferredBytes / totalBytes) * 100
+                    )} %`
+                  );
+                }
+              },
+            },
+          }).result;
+          postValue.coverImage = result.path;
+          console.log("Path from Response: ", result);
+        } catch (error) {
+          console.log("Error : ", error);
+        }
+      }
+
       const res = await client.graphql({
         query: createPost,
         variables: { input: postValue },
@@ -80,6 +119,14 @@ const CreatePostPage = () => {
           required
           className="mt-1 mb-4 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
         />
+        {image && (
+          <div className="w-64 h-64 rounded-lg overflow-hidden">
+            <img
+              src={URL.createObjectURL(image)}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
         <label
           htmlFor="content"
           className="block text-sm font-medium text-gray-700"
@@ -91,12 +138,28 @@ const CreatePostPage = () => {
           onChange={setMdeValue}
           className="mt-2 mb-4"
         />
-        <button
-          onClick={createNewPost}
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-          Create Post
-        </button>
+        <input
+          type="file"
+          name="PostImage"
+          id="PostImage"
+          ref={imageInputRef}
+          onChange={handleFileInputChange}
+          className="hidden"
+        />
+        <div>
+          <button
+            onClick={handleFIleInput}
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            Upload Cover Image
+          </button>
+          <button
+            onClick={createNewPost}
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            Create Post
+          </button>
+        </div>
       </div>
     </div>
   );
