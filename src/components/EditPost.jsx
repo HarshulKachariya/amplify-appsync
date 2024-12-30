@@ -126,7 +126,7 @@ const EditPostPage = () => {
       }
     };
     fetchPostsData();
-  }, []);
+  }, [id, navigate]);
 
   return (
     <div className="flex flex-col items-center p-6  min-h-screen">
@@ -183,12 +183,12 @@ const EditPostPage = () => {
           onChange={handleFileInputChange}
           className="hidden"
         />
-        <div>
+        <div className="space-y-4">
           <button
             onClick={handleFIleInput}
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            Upload Cover Image
+            Update Cover Image
           </button>
           <button
             onClick={createNewPost}
