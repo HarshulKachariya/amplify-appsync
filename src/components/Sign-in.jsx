@@ -1,32 +1,47 @@
+import { getCurrentUser, signIn } from "@aws-amplify/auth";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import { Hub } from "aws-amplify/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SignIn = () => {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const listener = (data) => {
-      switch (data.payload.event) {
+    Hub.listen("auth", ({ payload }) => {
+      switch (payload.event) {
         case "signedIn":
-          navigate("/");
+          setIsSignedIn(true);
           break;
         case "signedOut":
-          navigate("/");
+          setIsSignedIn(false);
           break;
         case "signIn_failure":
-          navigate("/sign-in");
+          setIsSignedIn(false);
           console.log("User sign-in failed");
           break;
-        default:
-          console.log("Auth event:", data.payload.event);
-          break;
       }
-    };
+    });
+  });
 
-    Hub.listen("auth", listener);
+  const checkUserSignedInorNot2 = async () => {
+    try {
+      await getCurrentUser();
+      setIsSignedIn(true);
+    } catch (err) {
+      console.error("Unauthorized....", err.message);
+      setIsSignedIn(false);
+    }
+  };
+
+  useEffect(() => {
+    checkUserSignedInorNot2();
+    if (signIn) {
+      navigate("/");
+    }
   }, [navigate]);
 
   return <div>SignIn</div>;
