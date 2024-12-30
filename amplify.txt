@@ -1,0 +1,4 @@
+AWS Amplify
+# <<<<<<<<<<<<<<<<<<<<<<<<<=============================>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+# not ideal, for appliacations requires fine grained infrastructure customization

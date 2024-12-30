@@ -24,18 +24,21 @@ const PostCard = ({ posts, mypost, setPosts }) => {
           className="bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
         >
           <div className="w-full h-48 object-contain">
-            <StorageImage
-              alt={post.title}
-              path={post.coverImage ?? ""}
-              onGetUrlError={(error) => console.error(error)}
-              imgKey="guest"
-              className="object-contain !w-full"
-            />
-            {/* <img
-              src={post.coverImage}
-              alt="Post Cover"
-              className="w-full h-full object-cover"
-            /> */}
+            {post.coverImage ? (
+              <StorageImage
+                alt={post.title}
+                path={post.coverImage ?? ""}
+                onGetUrlError={(error) => console.error(error)}
+                imgKey="guest"
+                className="object-contain !w-full"
+              />
+            ) : (
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+                alt="Post Cover"
+                className="w-full h-full object-fill"
+              />
+            )}
           </div>
           <div className="p-4 flex flex-col gap-3">
             <h2 className="text-xl font-semibold text-gray-800 truncate">

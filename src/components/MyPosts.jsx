@@ -4,12 +4,13 @@ import PostCard from "./PostCard";
 import { getCurrentUser } from "@aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
 import { postsByUsername } from "../graphql/queries";
+import Loader from "./Loader";
 
 const client = generateClient();
 
 const MyPostsPage = () => {
   const [posts, setPosts] = useState([]);
-
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   async function currentAuthenticatedUser() {
@@ -36,6 +37,7 @@ const MyPostsPage = () => {
         },
       });
       setPosts(res.data.postsByUsername.items);
+      setLoading(false);
     } catch (error) {
       console.log("Error fetchig posts..", error.message);
     }
@@ -44,6 +46,10 @@ const MyPostsPage = () => {
   useEffect(() => {
     currentAuthenticatedUser();
   }, []);
+
+  if (loading) {
+    return <Loader length={8} />;
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">

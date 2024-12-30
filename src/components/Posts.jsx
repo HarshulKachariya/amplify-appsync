@@ -169,11 +169,17 @@ const PostsPage = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="p-6">
-          {data.coverImage && (
+          {data.coverImage ? (
             <StorageImage
               alt={data.title}
               path={data.coverImage}
               className="!w-full !h-full !rounded-lg"
+            />
+          ) : (
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+              alt="Post Cover"
+              className="!w-full h-64 !rounded-lg"
             />
           )}
           <h1 className="text-2xl font-bold text-gray-900 mt-4">

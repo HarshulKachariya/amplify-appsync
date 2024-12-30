@@ -1,3 +1,3 @@
 import { Amplify } from "aws-amplify";
-import amplifyconfig from "./src/amplifyconfiguration.json";
-Amplify.configure(amplifyconfig);
+import awsmobile from "./src/aws-exports";
+Amplify.configure(awsmobile);
