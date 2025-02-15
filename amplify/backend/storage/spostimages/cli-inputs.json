@@ -1,0 +1,16 @@
+{
+  "resourceName": "spostimages",
+  "policyUUID": "355a27e3",
+  "bucketName": "amplifyappsync7776c0f929a54438a80ee98603c33ce1",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

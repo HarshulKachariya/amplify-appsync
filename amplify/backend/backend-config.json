@@ -7,26 +7,26 @@
             "UserPoolId"
           ],
           "category": "auth",
-          "resourceName": "amplifyappsyncbe5fafa9"
+          "resourceName": "amplifyappsync0efcddc0"
         }
       ],
       "output": {
         "authConfig": {
           "additionalAuthenticationProviders": [
             {
-              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
-              "userPoolConfig": {
-                "userPoolId": "authamplifyappsyncbe5fafa9"
-              }
+              "apiKeyConfig": {
+                "apiKeyExpirationDate": "2025-02-22T14:29:15.383Z",
+                "apiKeyExpirationDays": 7,
+                "description": ""
+              },
+              "authenticationType": "API_KEY"
             }
           ],
           "defaultAuthentication": {
-            "apiKeyConfig": {
-              "apiKeyExpirationDate": "2025-12-03T18:11:18.622Z",
-              "apiKeyExpirationDays": 365,
-              "description": "public api"
-            },
-            "authenticationType": "API_KEY"
+            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "userPoolConfig": {
+              "userPoolId": "authamplifyappsync0efcddc0"
+            }
           }
         }
       },
@@ -35,7 +35,7 @@
     }
   },
   "auth": {
-    "amplifyappsyncbe5fafa9": {
+    "amplifyappsync0efcddc0": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
@@ -58,6 +58,13 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
+    }
+  },
+  "storage": {
+    "spostimages": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
     }
   }
 }

@@ -12,6 +12,10 @@ export const onCreatePost = /* GraphQL */ `
       content
       username
       coverImage
+      comments {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -29,6 +33,10 @@ export const onUpdatePost = /* GraphQL */ `
       content
       username
       coverImage
+      comments {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -46,8 +54,90 @@ export const onDeletePost = /* GraphQL */ `
       content
       username
       coverImage
+      comments {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateComment = /* GraphQL */ `
+  subscription OnCreateComment(
+    $filter: ModelSubscriptionCommentFilterInput
+    $createdBy: String
+  ) {
+    onCreateComment(filter: $filter, createdBy: $createdBy) {
+      id
+      message
+      post {
+        id
+        title
+        content
+        username
+        coverImage
+        createdAt
+        updatedAt
+        __typename
+      }
+      postID
+      createdAt
+      updatedAt
+      createdBy
+      __typename
+    }
+  }
+`;
+export const onUpdateComment = /* GraphQL */ `
+  subscription OnUpdateComment(
+    $filter: ModelSubscriptionCommentFilterInput
+    $createdBy: String
+  ) {
+    onUpdateComment(filter: $filter, createdBy: $createdBy) {
+      id
+      message
+      post {
+        id
+        title
+        content
+        username
+        coverImage
+        createdAt
+        updatedAt
+        __typename
+      }
+      postID
+      createdAt
+      updatedAt
+      createdBy
+      __typename
+    }
+  }
+`;
+export const onDeleteComment = /* GraphQL */ `
+  subscription OnDeleteComment(
+    $filter: ModelSubscriptionCommentFilterInput
+    $createdBy: String
+  ) {
+    onDeleteComment(filter: $filter, createdBy: $createdBy) {
+      id
+      message
+      post {
+        id
+        title
+        content
+        username
+        coverImage
+        createdAt
+        updatedAt
+        __typename
+      }
+      postID
+      createdAt
+      updatedAt
+      createdBy
       __typename
     }
   }
