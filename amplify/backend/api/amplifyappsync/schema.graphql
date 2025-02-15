@@ -1,12 +1,10 @@
-# This "input" configures a global authorization rule to enable public access to
-# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
-
+# Use Cognito User Pools for authentication
 type Post
   @model
   @auth(
     rules: [
-      { allow: owner, ownerField: "username" }
-      { allow: private, operations: [read] }
+      { allow: owner, ownerField: "username", provider: userPools }
+      { allow: private, provider: userPools, operations: [read] }
     ]
   ) {
   id: ID!
@@ -22,8 +20,8 @@ type Comment
   @model
   @auth(
     rules: [
-      { allow: owner, ownerField: "createdBy" }
-      { allow: private, operations: [read] }
+      { allow: owner, ownerField: "createdBy", provider: userPools }
+      { allow: private, provider: userPools, operations: [read] }
     ]
   ) {
   id: ID!
