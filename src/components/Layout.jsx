@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Hub } from "aws-amplify/utils";
+import { getCurrentUser } from "@aws-amplify/auth";
 
 const Layout = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const listener = (data) => {
-      switch (data.payload.event) {
+    Hub.listen("auth", ({ payload }) => {
+      switch (payload.event) {
         case "signedIn":
           setIsSignedIn(true);
           break;
@@ -18,24 +20,28 @@ const Layout = () => {
           setIsSignedIn(false);
           console.log("User sign-in failed");
           break;
-        default:
-          console.log("Auth event:", data.payload.event);
-          break;
       }
-    };
+    });
+  });
 
-    Hub.listen("auth", listener);
-  }, []);
+  const checkUserSignedInorNot2 = async () => {
+    try {
+      await getCurrentUser();
+      setIsSignedIn(true);
+    } catch (err) {
+      console.error("Unauthorized....", err.message);
+      setIsSignedIn(false);
+    }
+  };
+
+  useEffect(() => {
+    checkUserSignedInorNot2();
+  }, [navigate]);
 
   const slugs = [
     { slug: "/", name: "Latest Posts" },
-    { slug: "/create-post", name: "Create Post" },
     { slug: "/profile", name: "Profile" },
   ];
-
-  if (isSignedIn) {
-    slugs.push({ slug: "/my-posts", name: "My Posts" });
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -49,7 +55,7 @@ const Layout = () => {
                   to={slug}
                   className={({ isActive }) =>
                     `hover:text-blue-400 ${
-                      isActive ? "text-blue-500 font-bold" : ""
+                      isActive ? "text-blue-500 font-bold" : "    "
                     }`
                   }
                 >
@@ -57,6 +63,62 @@ const Layout = () => {
                 </NavLink>
               </li>
             ))}
+
+            {!isSignedIn && (
+              <li>
+                <NavLink
+                  to="/sign-in"
+                  className={({ isActive }) =>
+                    `hover:text-blue-400 ${
+                      isActive ? "text-blue-500 font-bold" : ""
+                    }`
+                  }
+                >
+                  Sign In
+                </NavLink>
+              </li>
+            )}
+
+            {isSignedIn && (
+              <>
+                <li>
+                  <NavLink
+                    to="/create-post"
+                    className={({ isActive }) =>
+                      `hover:text-blue-400 ${
+                        isActive ? "text-blue-500 font-bold" : ""
+                      }`
+                    }
+                  >
+                    Create Post
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/my-posts"
+                    className={({ isActive }) =>
+                      `hover:text-blue-400 ${
+                        isActive ? "text-blue-500 font-bold" : ""
+                      }`
+                    }
+                  >
+                    My Posts
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/logout"
+                    className={({ isActive }) =>
+                      `hover:text-blue-400 ${
+                        isActive ? "text-blue-500 font-bold" : ""
+                      }`
+                    }
+                  >
+                    Logout
+                  </NavLink>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
       </header>

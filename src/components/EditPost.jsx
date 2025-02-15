@@ -1,23 +1,25 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
-import { v4 } from "uuid";
-import { createPost } from "../graphql/mutations";
+import { updatePost } from "../graphql/mutations";
 import { generateClient } from "aws-amplify/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getPost } from "../graphql/queries";
+import { StorageImage } from "@aws-amplify/ui-react-storage";
 import { uploadData } from "aws-amplify/storage";
+import { v4 } from "uuid";
 
 const client = generateClient();
 
-const CreatePostPage = () => {
+const EditPostPage = () => {
+  const { id } = useParams();
   const [value, setValue] = useState({
     title: "",
     content: "",
   });
   const [image, setImage] = useState(null);
-  const [error, setError] = useState("");
-  const imageInputRef = useRef();
-
+  const [imageURL, setImageURL] = useState(null);
+  const inputImageRef = useRef();
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -37,24 +39,25 @@ const CreatePostPage = () => {
   );
 
   const handleFIleInput = () => {
-    imageInputRef.current.click();
+    inputImageRef.current.click();
   };
 
   const handleFileInputChange = () => {
-    const file = imageInputRef.current.files[0];
+    const file = inputImageRef.current.files[0];
 
     if (!file) return;
+    setImageURL(null);
     setImage(file);
-  };
-
-  const postValue = {
-    id: v4(),
-    title: value.title,
-    content: value.content,
   };
 
   const createNewPost = async () => {
     if (!value.title || !value.content) return;
+
+    const postValue = {
+      id: id,
+      title: value.title,
+      content: value.content,
+    };
 
     try {
       if (image) {
@@ -83,13 +86,13 @@ const CreatePostPage = () => {
       }
 
       const res = await client.graphql({
-        query: createPost,
+        query: updatePost,
         variables: { input: postValue },
         authMode: "userPool",
       });
 
       if (res.data) {
-        navigate(`/${res.data.createPost.id}`);
+        navigate(`/${res.data.updatePost.id}`);
         setValue({
           title: "",
           content: "",
@@ -100,10 +103,35 @@ const CreatePostPage = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchPostsData = async () => {
+      try {
+        if (!id) return navigate("/");
+
+        const res = await client.graphql({
+          query: getPost,
+          variables: { id },
+        });
+
+        if (res.data.getPost) {
+          const { title, content, coverImage } = res.data.getPost;
+          setValue({
+            title: title,
+            content: content,
+          });
+          setImageURL(coverImage);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchPostsData();
+  }, [id, navigate]);
+
   return (
     <div className="flex flex-col items-center p-6  min-h-screen">
       <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-2xl">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">Create Post</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-800">Edit Post</h1>
         <label
           htmlFor="title"
           className="block text-sm font-medium text-gray-700"
@@ -119,13 +147,22 @@ const CreatePostPage = () => {
           required
           className="mt-1 mb-4 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
         />
-        {image && (
-          <div className="w-full h-64 rounded-lg overflow-hidden">
+        {imageURL ? (
+          <StorageImage
+            alt={value.title}
+            path={imageURL ?? ""}
+            onGetUrlError={(error) => console.error(error)}
+            className="!w-full !h-full"
+          />
+        ) : image ? (
+          <div className="w-full h-full rounded-lg overflow-hidden">
             <img
               src={URL.createObjectURL(image)}
               className="w-full h-full object-cover"
             />
           </div>
+        ) : (
+          <></>
         )}
         <label
           htmlFor="content"
@@ -142,22 +179,22 @@ const CreatePostPage = () => {
           type="file"
           name="PostImage"
           id="PostImage"
-          ref={imageInputRef}
+          ref={inputImageRef}
           onChange={handleFileInputChange}
           className="hidden"
         />
-        <div className="space-y-3">
+        <div className="space-y-4">
           <button
             onClick={handleFIleInput}
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            Upload Cover Image
+            Update Cover Image
           </button>
           <button
             onClick={createNewPost}
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            Create Post
+            Update Post
           </button>
         </div>
       </div>
@@ -165,4 +202,4 @@ const CreatePostPage = () => {
   );
 };
 
-export default CreatePostPage;
+export default EditPostPage;
